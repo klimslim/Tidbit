@@ -55,12 +55,10 @@ class ModuleTabs
      */
     public static function updateEnabledTabs(\DBManager $db, $modules, $sugarModuleList): void
     {
-        $sql = "SELECT * FROM config WHERE category = 'MySettings' and name = 'tab'";
-        $result = $db->fetchOne($sql);
+        require SUGAR_PATH . '/modules/MySettings/TabController.php';
+        $tc = new \TabController();
 
-        $moduleTabs = ($result)
-            ? unserialize(base64_decode($result['value']))
-            : [];
+        $moduleTabs = $tc->get_system_tabs(false, false);
 
         // Check Tidbit generated module is not enabled, but isset in modulesList
         foreach ($modules as $module) {
@@ -69,8 +67,7 @@ class ModuleTabs
             }
         }
 
-        $enabledModules = $db->quoted(base64_encode(serialize($moduleTabs)));
-        $db->query("UPDATE config SET value={$enabledModules} WHERE category='MySettings' AND name='tab' AND NOT (platform='portal' AND platform IS NOT NULL)");
+        $tc->set_system_tabs($moduleTabs);
 
         // Clear sugar cache
         sugar_cache_clear('admin_settings_cache');

@@ -74,7 +74,7 @@ class UsersGenerator extends ModuleGenerator
 
         $userID = $data['id'];
         $data['data']['user_preferences'][] = [
-            'id' => "'" . md5($userID) . "'",
+            'id' => "'" . md5((string) $userID) . "'",
             'category' => "'global'",
             'date_entered' => $this->currentDateTime,
             'date_modified' => $this->currentDateTime,
@@ -84,8 +84,8 @@ class UsersGenerator extends ModuleGenerator
 
         $privateTeamID = $this->idGenerator->generateTidbitID($n, 'TeamsPr');
         $userData = $data['data']['users'][0];
-        $fullName = sprintf("'%s %s'", trim($userData['first_name'], "'"), trim($userData['last_name'], "'"));
-        $description = sprintf("'Private team for %s'", trim($userData['user_name'], "'"));
+        $fullName = sprintf("'%s %s'", trim((string) $userData['first_name'], "'"), trim((string) $userData['last_name'], "'"));
+        $description = sprintf("'Private team for %s'", trim((string) $userData['user_name'], "'"));
 
         $managerID = $this->idGenerator->generateTidbitID(($n - ($n % 10)) + 1, 'Users');
 

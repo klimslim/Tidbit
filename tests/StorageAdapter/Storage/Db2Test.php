@@ -23,7 +23,7 @@ class Db2Test extends TidbitTestCase
     {
         $storage = new Db2($this->storageResource);
 
-        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\StorageAdapter\Storage\Db2::class, 'getSequenceFromValues');
+        $method = static::accessNonPublicMethod(Db2::class, 'getSequenceFromValues');
         $installData = [];
         $actual = $method->invokeArgs($storage, [$installData]);
 
@@ -37,7 +37,7 @@ class Db2Test extends TidbitTestCase
     {
         $storage = new Db2($this->storageResource);
 
-        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\StorageAdapter\Storage\Db2::class, 'getSequenceFromValues');
+        $method = static::accessNonPublicMethod(Db2::class, 'getSequenceFromValues');
 
         $installData = [
             'some_field' => 'some_value',
@@ -59,7 +59,8 @@ class Db2Test extends TidbitTestCase
     {
         $storage = new Db2($this->storageResource);
 
-        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\StorageAdapter\Storage\Db2::class, 'getSequenceFromValues');
+        $db2Class = Db2::class;
+        $method = static::accessNonPublicMethod($db2Class, 'getSequenceFromValues');
 
         $installData = [
             'some_field' => 'some_value',
@@ -93,7 +94,7 @@ class Db2Test extends TidbitTestCase
 
         $storage = new Db2($mock);
         $method = static::accessNonPublicMethod(
-            \Sugarcrm\Tidbit\StorageAdapter\Storage\Db2::class,
+            Db2::class,
             'getCurrentSequenceValue'
         );
 
@@ -112,7 +113,7 @@ class Db2Test extends TidbitTestCase
             ],
         ];
 
-        $mock = $this->getMockBuilder(\Sugarcrm\Tidbit\StorageAdapter\Storage\Db2::class)
+        $mock = $this->getMockBuilder(Db2::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getSequenceFromValues', 'getCurrentSequenceValue', 'setNewSequenceValue'])
             ->getMock();
@@ -122,7 +123,7 @@ class Db2Test extends TidbitTestCase
             ->with($installData[0])
             ->willReturn([]);
 
-        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\StorageAdapter\Storage\Db2::class, 'patchSequenceValues');
+        $method = static::accessNonPublicMethod(Db2::class, 'patchSequenceValues');
         $actual = $method->invokeArgs($mock, [&$installData]);
 
         $this->assertEmpty($actual);
@@ -169,7 +170,7 @@ class Db2Test extends TidbitTestCase
             ->with('CASES_CASE_NUMBER_SEQ', count($installData))
             ->willReturn(true);
 
-        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\StorageAdapter\Storage\Db2::class, 'patchSequenceValues');
+        $method = static::accessNonPublicMethod(Db2::class, 'patchSequenceValues');
         $method->invokeArgs($mock, [&$installData]);
 
         // Assert that values were changed to current sequence value + iteration number
@@ -188,7 +189,7 @@ class Db2Test extends TidbitTestCase
     public function testPrepareQueryException($tableName, $installData)
     {
         $this->expectException(\Sugarcrm\Tidbit\Exception::class);
-        $mock = $this->getMockBuilder(\Sugarcrm\Tidbit\StorageAdapter\Storage\Db2::class)
+        $mock = $this->getMockBuilder(Db2::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['patchSequenceValues'])
             ->getMock();
@@ -196,7 +197,7 @@ class Db2Test extends TidbitTestCase
         $mock->expects($this->never())
             ->method('patchSequenceValues');
 
-        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\StorageAdapter\Storage\Db2::class, 'prepareQuery');
+        $method = static::accessNonPublicMethod(Db2::class, 'prepareQuery');
         $method->invokeArgs($mock, [$tableName, $installData]);
     }
 
@@ -251,7 +252,7 @@ class Db2Test extends TidbitTestCase
             ->method('patchSequenceValues')
             ->with($installData);
 
-        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\StorageAdapter\Storage\Db2::class, 'prepareQuery');
+        $method = static::accessNonPublicMethod(Db2::class, 'prepareQuery');
         $actual = $method->invokeArgs($mock, ['some_table', $installData]);
 
         // For 3 records prepareQuery should put 2 "UNION ALL" into final SQL

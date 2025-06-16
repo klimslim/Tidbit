@@ -51,7 +51,8 @@ class PhoneTest extends TidbitTestCase
         $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\FieldData\Phone::class, 'generatePhone');
 
         $this->assertMatchesRegularExpression('/^\d{4}$/', $method->invokeArgs($phone, ['####']));
-        $this->assertMatchesRegularExpression('/^\(\d{3}\)\-\d{4}$/', $method->invokeArgs($phone, ['({{areaCode}})-####']));
+        $args = ['({{areaCode}})-####'];
+        $this->assertMatchesRegularExpression('/^\(\d{3}\)\-\d{4}$/', $method->invokeArgs($phone, $args));
         $this->assertMatchesRegularExpression(
             '/^\d{3}\-33\-\-\d{3}$/',
             $method->invokeArgs($phone, ['{{areaCode}}-33--{{exchangeCode}}'])

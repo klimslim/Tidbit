@@ -1,0 +1,63 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # Allow all matrix jobs to complete even if one fails, like Travis `fast_finish: true` (inverted logic here)
+      matrix:
+        php-versions: ['8.2', '8.3', '8.4']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: json, mbstring
+          coverage: xdebug
+
+      - name: Cache Composer global cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache # Cache the global composer cache directory
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-source --no-interaction
+
+      - name: Install php-coveralls
+        run: composer require satooshi/php-coveralls --dev --no-interaction
+
+      - name: Run style checks
+        run: composer check-style
+
+      - name: Run tests
+        run: composer tests-ci
+
+      - name: Upload coverage to Coveralls
+        run: php vendor/bin/coveralls -v
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_PARALLEL: true
+          COVERALLS_FLAG_NAME: php-${{ matrix.php-versions }} # Added prefix for clarity
+          CI_NAME: github-actions
+          CI_BRANCH: ${{ github.head_ref || github.ref_name }}
+          CI_BUILD_NUMBER: ${{ github.run_id }}
+          CI_JOB_ID: ${{ github.run_id }}-${{ matrix.php-versions }} # Unique job ID
+
+  coveralls_finish:
+    needs: build # This job runs only after all 'build' jobs are successful
+    runs-on: ubuntu-latest
+    if: success() # Only run if all build jobs succeeded
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2 # Using the official coveralls action
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true
